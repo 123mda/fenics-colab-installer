@@ -1,15 +1,15 @@
 #!/bin/bash
 set -e
 
-echo "📦 Installing FEniCS 2019.1.0 and dolfin (legacy)..."
+echo "📦 Installing FEniCS 2019.1.0 legacy (dolfin)..."
 
-# Add the PPA and update
+# Step 1: Add FEniCS PPA
 apt-get update -qq
 apt-get install -y software-properties-common
 add-apt-repository -y ppa:fenics-packages/fenics
 apt-get update
 
-# Install all FEniCS legacy packages and core dependencies
+# Step 2: Install FEniCS legacy stack
 apt-get install -y \
     fenics \
     python3-dolfin \
@@ -17,15 +17,13 @@ apt-get install -y \
     python3-ffc \
     python3-fiat
 
-# Remove conflicting pip-installed ufl
-pip uninstall -y fenics-ufl || true
+# Step 3: Fix ufl conflict from pip install
+/usr/bin/python3 -m pip uninstall -y fenics-ufl || true
 
-# ✅ Optional: Confirm critical files exist
-ls -l /usr/lib/python3/dist-packages/dijitso/__init__.py
-ls -l /usr/lib/python3/dist-packages/ffc/__init__.py
-ls -l /usr/lib/python3/dist-packages/FIAT/__init__.py
+# Step 4: Create symbolic link to fix FIAT capitalization issue
+cd /usr/lib/python3/dist-packages
+[ ! -d FIAT ] && ln -s fiat FIAT
+[ ! -d dijitso ] && ln -s dijitso dijitso  # should already exist
+[ ! -d ffc ] && ln -s ffc ffc             # should already exist
 
-# ✅ Optional: Export workaround (last resort)
-# export DOLFIN_ALLOW_USER_SITE_IMPORTS=1
-
-echo "✅ FEniCS + dolfin legacy installed and cleaned."
+echo "✅ FEniCS + dolfin legacy installed."
