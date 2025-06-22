@@ -3,22 +3,19 @@ set -e
 
 echo "📦 Installing FEniCS 2019.1.0 and dolfin..."
 
-# Update and install software-properties-common
 apt-get update -qq
 apt-get install -y software-properties-common
-
-# Add the FEniCS PPA and update
 add-apt-repository -y ppa:fenics-packages/fenics
 apt-get update
 
-# Install FEniCS core (includes dolfin and all dependencies)
-apt-get install -y fenics
+# Core FEniCS installation
+apt-get install -y fenics python3-dolfin
 
-# Make sure python3-dolfin is present (redundancy is OK here)
-apt-get install -y python3-dolfin
+# 🔧 Fix missing dependencies and pip conflicts
+apt-get install -y python3-dijitso python3-ffc python3-fiat
+pip uninstall -y fenics-ufl || true
 
-# Confirm dolfin is available in Python
+# Confirm installation
 python3 -c "import dolfin; print('✅ dolfin module is available in Python.')"
 
 echo "✅ FEniCS and dolfin installation complete"
-
